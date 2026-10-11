@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apex Advanced Hub</title>
+    <style>
+        :root {
+            --bg-primary: #0a0a0c;
+            --bg-secondary: #141419;
+            --accent: #ff4757;
+            --accent-glow: rgba(255, 71, 87, 0.3);
+            --text-main: #ffffff;
+            --text-muted: #8e8e93;
+            --panel-bg: rgba(20, 20, 25, 0.95);
+        }
+
+        /* Customizable Color Modes */
+        body.theme-dark {
+            --bg-primary: #0a0a0c;
+            --bg-secondary: #141419;
+            --accent: #ff4757;
+            --accent-glow: rgba(255, 71, 87, 0.3);
+        }
+        body.theme-crimson {
+            --bg-primary: #150507;
+            --bg-secondary: #250a0e;
+            --accent: #ff2a4b;
+            --accent-glow: rgba(255, 42, 75, 0.4);
+        }
+        body.theme-cyan {
+            --bg-primary: #020f14;
+            --bg-secondary: #051b24;
+            --accent: #00d2ff;
+            --accent-glow: rgba(0, 210, 255, 0.4);
+        }
+        body.theme-emerald {
+            --bg-primary: #031209;
+            --bg-secondary: #072212;
+            --accent: #00ff66;
+            --accent-glow: rgba(0, 255, 102, 0.4);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow-x: hidden;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* Canvas Overlay for Floating Particles */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            pointer-events: none;
+            display: none;
+        }
+
+        nav {
+            position: relative;
+            z-index: 10;
+            background-color: var(--bg-secondary);
+            padding: 12px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #23232a;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+
+        .brand {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: var(--accent);
+            text-transform: uppercase;
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-ui {
+            background: #1c1c24;
+            color: var(--text-main);
+            border: 1px solid #2e2e3a;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: border-color 0.2s;
+        }
+        .btn-ui:hover {
+            border-color: var(--accent);
+        }
+
+        /* Slide-out Customization Panel */
+        #settings-panel {
+            position: fixed;
+            top: 70px;
+            right: -320px;
+            width: 280px;
+            background: var(--panel-bg);
+            border: 1px solid #23232a;
+            border-radius: 12px;
+            padding: 20px;
+            z-index: 100;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+        }
+        #settings-panel.active {
+            right: 20px;
+        }
+
+        .setting-group {
+            margin-bottom: 20px;
+        }
+        .setting-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .theme-btn {
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #333;
+            background: #111;
+            color: #fff;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .wrapper {
+            position: relative;
+            z-index: 5;
+            max-width: 1300px;
+            margin: 40px auto;
+            padding: 0 25px;
+        }
+
+        .section-header {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            border-left: 3px solid var(--accent);
+            padding-left: 10px;
+        }
+
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 25px;
+        }
+
+        .app-card {
+            background-color: var(--bg-secondary);
+            border-radius: 14px;
+            border: 1px solid #22222b;
+            overflow: hidden;
+            transition: all 0.25s;
+            cursor: pointer;
+        }
+        .app-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--accent);
+        }
+
+        .app-banner {
+            width: 100%;
+            height: 130px;
+            background: linear-gradient(135deg, #1e1e24 0%, #111115 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 44px;
+        }
+
+        .app-details {
+            padding: 16px;
+        }
+
+        .app-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        /* Fullscreen Viewport System */
+        #viewport-frame {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 99999;
+            background: #000;
+            border: none;
+        }
+        #close-viewport {
+            display: none;
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 100000;
+            background: #141419;
+            color: #fff;
+            border: 1px solid #333;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="theme-dark">
+
+    <!-- Canvas layer for rendering background effects -->
+    <canvas id="particle-canvas"></canvas>
+
+    <nav>
+        <div class="brand">Apex Portal</div>
+        <div class="controls">
+            <button class="btn-ui" onclick="toggleSettings()">⚙️ Customization</button>
+            <button class="btn-ui" style="border-color: #ff4757; color: #ff4757;">Panic: [ESC]</button>
+        </div>
+    </nav>
+
+    <!-- Customization Config Panel -->
+    <div id="settings-panel">
+        <div class="setting-group">
+            <div class="setting-label">Select Workspace Aura</div>
+            <div class="theme-grid">
+                <button class="theme-btn" onclick="setTheme('dark')">Default Dark</button>
+                <button class="theme-btn" style="color: #ff2a4b" onclick="setTheme('crimson')">Crimson</button>
+                <button class="theme-btn" style="color: #00d2ff" onclick="setTheme('cyan')">Cyan</button>
+                <button class="theme-btn" style="color: #00ff66" onclick="setTheme('emerald')">Emerald</button>
+            </div>
+        </div>
+        <div class="setting-group">
+            <div class="setting-label">Background Physics</div>
+            <button class="btn-ui" style="width: 100%" onclick="toggleParticles()">Toggle Particles</button>
+        </div>
+    </div>
+
+    <!-- Interface Content Grid Area -->
+    <div class="wrapper">
+        <div class="section-header">Workspace Subsystems</div>
+        <div class="app-grid">
+            <div class="app-card" onclick="launchApp('https://1v1.lol')">
+                <div class="app-banner">🎯</div>
+                <div class="app-details"><div class="app-title">1v1.lol</div></div>
+            </div>
+            <div class="app-card" onclick="launchApp('https://suroi.io')">
+                <div class="app-banner">⚔️</div>
+                <div class="app-details"><div class="app-title">Suroi 2D</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Dedicated Frame Interceptor -->
+    <button id="close-viewport" onclick="closeApp()">Back to Hub</button>
+    <iframe id="viewport-frame"></iframe>
+
+    <script>
+        const panel = document.getElementById('settings-panel');
+        const frame = document.getElementById('viewport-frame');
+        const closeBtn = document.getElementById('close-viewport');
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+
+        let particlesActive = false;
+        let pArray = [];
+
+        // Slide the settings box in or out
+        function toggleSettings() {
+            panel.classList.toggle('active');
+        }
+
+        // Switch color themes by changing the class on the body element
+        function setTheme(t) {
+            document.body.className = 'theme-' + t;
+        }
+
+        // Launch iframe elements cleanly into full viewport visibility
+        function launchApp(url) {
+            frame.src = url;
+            frame.style.display = 'block';
+            closeBtn.style.display = 'block';
+        }
+
+        function closeApp() {
+            frame.src = '';
+            frame.style.display = 'none';
+            closeBtn.style.display = 'none';
+        }
+
+        // Manage background particle system execution loops
+        function toggleParticles() {
+            particlesActive = !particlesActive;
+            canvas.style.display = particlesActive ? 'block' : 'none';
+            if (particlesActive) {
+                resizeCanvas();
+                setupParticles();
+                animate();
+            }
+Use code with caution.
+}
+function resizeCanvas() {
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+}
+function setupParticles() {
+pArray = [];
+for(let i=0; i<60; i++) {
+pArray.push({
+x: Math.random() * canvas.width,
+y: Math.random() * canvas.height,
+size: Math.random() * 2 + 1,
+speedY: Math.random() * -0.5 - 0.2
+});
+}
+}
+function animate() {
+if (!particlesActive) return;
+ctx.clearRect(0,0,canvas.width,canvas.height);
+ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--accent');
+for(let i=0; i<pArray.length; i++) {
+let p = pArray[i];
+ctx.beginPath();
+ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+ctx.fill();
+p.y += p.speedY;
+if(p.y < 0) p.y = canvas.height;
+}
+requestAnimationFrame(animate);
+}
+window.addEventListener('resize', resizeCanvas);
+// Safety Escape listener
+window.addEventListener('keydown', e => {
+if (e.key === 'Escape') window.location.href = 'google.com';
+});
+
