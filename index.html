@@ -15,7 +15,6 @@
             --panel-bg: rgba(20, 20, 25, 0.95);
         }
 
-        /* Customizable Color Modes */
         body.theme-dark {
             --bg-primary: #0a0a0c;
             --bg-secondary: #141419;
@@ -51,7 +50,6 @@
             transition: background 0.3s, color 0.3s;
         }
 
-        /* Canvas Overlay for Floating Particles */
         #particle-canvas {
             position: fixed;
             top: 0;
@@ -100,16 +98,17 @@
             font-size: 13px;
             font-weight: 600;
             transition: border-color 0.2s;
+            position: relative;
+            z-index: 20;
         }
         .btn-ui:hover {
             border-color: var(--accent);
         }
 
-        /* Slide-out Customization Panel */
         #settings-panel {
             position: fixed;
             top: 70px;
-            right: -320px;
+            right: -340px;
             width: 280px;
             background: var(--panel-bg);
             border: 1px solid #23232a;
@@ -148,6 +147,9 @@
             color: #fff;
             font-size: 12px;
             cursor: pointer;
+        }
+        .theme-btn:hover {
+            border-color: var(--accent);
         }
 
         .wrapper {
@@ -206,7 +208,6 @@
             font-weight: 600;
         }
 
-        /* Fullscreen Viewport System */
         #viewport-frame {
             display: none;
             position: fixed;
@@ -235,7 +236,6 @@
 </head>
 <body class="theme-dark">
 
-    <!-- Canvas layer for rendering background effects -->
     <canvas id="particle-canvas"></canvas>
 
     <nav>
@@ -246,7 +246,6 @@
         </div>
     </nav>
 
-    <!-- Customization Config Panel -->
     <div id="settings-panel">
         <div class="setting-group">
             <div class="setting-label">Select Workspace Aura</div>
@@ -261,9 +260,12 @@
             <div class="setting-label">Background Physics</div>
             <button class="btn-ui" style="width: 100%" onclick="toggleParticles()">Toggle Particles</button>
         </div>
+        <div class="setting-group">
+            <div class="setting-label">Tab Stealth</div>
+            <button class="btn-ui" style="width: 100%" onclick="cloakPage()">about:blank Cloak</button>
+        </div>
     </div>
 
-    <!-- Interface Content Grid Area -->
     <div class="wrapper">
         <div class="section-header">Workspace Subsystems</div>
         <div class="app-grid">
@@ -278,7 +280,6 @@
         </div>
     </div>
 
-    <!-- Hidden Dedicated Frame Interceptor -->
     <button id="close-viewport" onclick="closeApp()">Back to Hub</button>
     <iframe id="viewport-frame"></iframe>
 
@@ -292,19 +293,21 @@
         let particlesActive = false;
         let pArray = [];
 
-        // Slide the settings box in or out
         function toggleSettings() {
             panel.classList.toggle('active');
         }
 
-        // Switch color themes by changing the class on the body element
         function setTheme(t) {
             document.body.className = 'theme-' + t;
         }
 
-        // Launch iframe elements cleanly into full viewport visibility
         function launchApp(url) {
-            frame.src = url;
+            // Ultraviolet routing execution pathway setup
+            if (typeof self.__uv$config !== 'undefined') {
+                frame.src = window.location.origin + self.__uv$config.prefix + self.__uv$config.encodeUrl(url);
+            } else {
+                frame.src = url;
+            }
             frame.style.display = 'block';
             closeBtn.style.display = 'block';
         }
@@ -315,7 +318,6 @@
             closeBtn.style.display = 'none';
         }
 
-        // Manage background particle system execution loops
         function toggleParticles() {
             particlesActive = !particlesActive;
             canvas.style.display = particlesActive ? 'block' : 'none';
@@ -323,8 +325,8 @@
                 resizeCanvas();
                 setupParticles();
                 animate();
-            }
 Use code with caution.
+}
 }
 function resizeCanvas() {
 canvas.width = window.innerWidth;
@@ -355,8 +357,25 @@ if(p.y < 0) p.y = canvas.height;
 }
 requestAnimationFrame(animate);
 }
+function cloakPage() {
+const url = window.location.href;
+const win = window.open();
+if (!win) {
+alert("Please allow popups to utilize about:blank cloaking.");
+return;
+}
+win.document.body.style.margin = '0';
+win.document.body.style.height = '100vh';
+const ifr = win.document.createElement('iframe');
+ifr.style.border = 'none';
+ifr.style.width = '100%';
+ifr.style.height = '100%';
+ifr.style.margin = '0';
+ifr.src = url;
+win.document.body.appendChild(ifr);
+window.location.replace('google.com');
+}
 window.addEventListener('resize', resizeCanvas);
-// Safety Escape listener
 window.addEventListener('keydown', e => {
 if (e.key === 'Escape') window.location.href = 'google.com';
 });
