@@ -1,0 +1,12 @@
+{
+  "name": "apex-portal-backend",
+  "version": "1.0.0",
+  "description": "High-performance structural deployment engine assets",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server . -p 10000"
+  },
+  "dependencies": {
+    "http-server": "^14.1.1"
+  }
+}
